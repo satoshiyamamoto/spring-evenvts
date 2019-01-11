@@ -8,6 +8,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @SpringBootApplication
 class SpringEventsApplication
@@ -17,22 +18,18 @@ fun main(args: Array<String>) {
 }
 
 @RestController
-class Controller(
-        val publisher: ApplicationEventPublisher
-) {
+class Publisher(val publisher: ApplicationEventPublisher) {
 
     @GetMapping("/")
-    fun handleRequest() {
-        publisher.publishEvent(Event("request", "Hello"))
-    }
+    fun publish() = publisher.publishEvent(Event("request", UUID.randomUUID().toString()))
 }
 
 @Component
-class EventHandler {
-    private val logger = LoggerFactory.getLogger(EventHandler::class.java)
+class Subscriber {
+    private val logger = LoggerFactory.getLogger(Subscriber::class.java)
 
     @EventListener
-    fun handleEvent(event: Event) = logger.info(event.toString())
+    fun subscribe(event: Event) = logger.info(event.toString())
 }
 
-data class Event(val type: String, val message: String)
+data class Event(val type: String, val data: Any)
